@@ -521,15 +521,15 @@ export class DuckDuckGo extends Tool {
       return "No good search result found";
     }
 
-    console.warn(
-      "duckduckgo_search.ts:searchResults.results",
-      searchResults.results,
-    );
-
     const results = searchResults.results
       .slice(0, this.maxResults)
       .map(({ title, description, url }) => htmlToText(description))
       .join("\n\n");
+
+    console.warn(
+      "duckduckgo_search.ts:searchResults.results",
+      searchResults.results,
+    );
 
     return results;
   }

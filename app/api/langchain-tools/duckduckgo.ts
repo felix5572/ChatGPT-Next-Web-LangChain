@@ -16,12 +16,12 @@ export class DuckDuckGo extends Tool {
       return "No good search result found";
     }
 
-    console.log("duckduckgo.ts:searchResults.results", searchResults.results);
-
     const results = searchResults.results
       .slice(0, this.maxResults)
       .map(({ title, description, url }) => htmlToText(description))
       .join("\n\n");
+
+    console.warn("duckduckgo.ts:searchResults.results", searchResults.results);
 
     return results;
   }
