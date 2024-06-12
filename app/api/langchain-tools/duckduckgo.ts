@@ -4,7 +4,7 @@ import { Tool } from "@langchain/core/tools";
 
 export class DuckDuckGo extends Tool {
   name = "duckduckgo_search";
-  maxResults = 4;
+  maxResults = 7;
 
   /** @ignore */
   async _call(input: string) {
@@ -15,6 +15,8 @@ export class DuckDuckGo extends Tool {
     if (searchResults.noResults) {
       return "No good search result found";
     }
+
+    console.log("duckduckgo.ts:searchResults.results", searchResults.results);
 
     const results = searchResults.results
       .slice(0, this.maxResults)
