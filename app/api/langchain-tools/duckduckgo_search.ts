@@ -521,7 +521,7 @@ export class DuckDuckGo extends Tool {
       return "No good search result found";
     }
 
-    console.log(
+    console.warn(
       "duckduckgo_search.ts:searchResults.results",
       searchResults.results,
     );
