@@ -68,6 +68,8 @@ export interface ChatSession {
   lastSummarizeIndex: number;
   clearContextIndex?: number;
 
+  followUpQuestions?: string[]; // used for feature: followUpQuestions
+
   mask: Mask;
 }
 
@@ -90,6 +92,8 @@ function createEmptySession(): ChatSession {
     },
     lastUpdate: Date.now(),
     lastSummarizeIndex: 0,
+
+    followUpQuestions: [], // used for feature: followUpQuestions
 
     mask: createEmptyMask(),
   };
@@ -321,6 +325,7 @@ export const useChatStore = createPersistStore(
         });
         get().updateStat(message);
         get().summarizeSession();
+        get().generateFollowUpQuestions();
       },
 
       async onUserInput(
@@ -758,6 +763,72 @@ export const useChatStore = createPersistStore(
             },
             onError(err) {
               console.error("[Summarize] ", err);
+            },
+          });
+        }
+      },
+
+      generateFollowUpQuestions() {
+        const config = useAppConfig.getState();
+        const session = get().currentSession();
+        const modelConfig = session.mask.modelConfig;
+
+        var api = getClientApi(modelConfig.model);
+        const messages = session.messages;
+
+        const GENERATE_QUESTIONS_MIN_LEN = 50;
+
+        function parseQuestions(questions_string: string) {
+          console.log(
+            "[parseQuestions]generateFollowUpQuestions:",
+            questions_string,
+          );
+          let questions = [];
+          questions = (() => {
+            try {
+              return JSON.parse(questions_string);
+            } catch {
+              return [];
+            }
+          })();
+          return questions;
+        }
+
+        if (
+          // config.enableAutoGenerateQuestions &&
+          countMessages(messages) >= GENERATE_QUESTIONS_MIN_LEN
+        ) {
+          const questionMessages = messages.concat(
+            createMessage({
+              role: "system",
+              content:
+                '请根据以上对话生成5个用户可能感兴趣的后续问题。返回格式例子: ["question1", "question2","question3","question4","question5"]。仅仅返回一个可被解析的json列表。',
+            }),
+          );
+          api.llm.chat({
+            messages: questionMessages,
+            config: {
+              model: getSummarizeModel(session.mask.modelConfig.model),
+              stream: false,
+            },
+            onFinish(message) {
+              get().updateCurrentSession((session) => {
+                let parsedFollowUpQuestions: string[];
+                parsedFollowUpQuestions = parseQuestions(message);
+                session.followUpQuestions = (
+                  session.followUpQuestions ?? []
+                ).concat(parsedFollowUpQuestions);
+                // newfollowUpQuestions
+                // session.followUpQuestions.push(...())
+                // message.length > 0 ? parseQuestions(message) : []
+              });
+              console.log(
+                "[follow up questions] message",
+                message,
+                "session.followUpQuestions:",
+                session.followUpQuestions,
+              );
+              // session.
             },
           });
         }

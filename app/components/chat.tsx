@@ -122,6 +122,16 @@ import {
 import { FileInfo } from "../client/platforms/utils";
 import { MsEdgeTTS, OUTPUT_FORMAT } from "../utils/ms_edge_tts";
 
+import { Swiper, SwiperSlide } from "swiper/react";
+// import 'swiper/css';
+// import 'swiper/css/free-mode';
+// import 'swiper/css/pagination';
+// import 'swiper/css/scrollbar';
+// import 'swiper/css/navigation';
+import "swiper/css/bundle";
+import { FreeMode, Navigation, Scrollbar } from "swiper/modules";
+import SwiperCore from "swiper";
+
 const ttsPlayer = createTTSPlayer();
 
 const Markdown = dynamic(async () => (await import("./markdown")).Markdown, {
@@ -763,6 +773,39 @@ function _Chat() {
 
   const chatStore = useChatStore();
   const session = chatStore.currentSession();
+
+  // [used for AutoFollowUpQuestion]
+  const [quickReplies, setQuickReplies] = useState<string[]>([]);
+  // const [quickReplies, setQuickReplies] = useState<string[]>(["继续", "再详细些", "重新生成"])
+  const QuickRepliesSwiperRef = useRef<SwiperCore | null>(null);
+
+  useEffect(() => {
+    setQuickReplies(
+      ["继续", "再详细些", "重新生成"].concat(session.followUpQuestions ?? []),
+    );
+    console.log("[current quick replies]", quickReplies);
+    if (QuickRepliesSwiperRef.current) {
+      console.log(
+        "[SideEffect:QuickRepliesSwiperRef.current]",
+        QuickRepliesSwiperRef.current,
+      );
+      QuickRepliesSwiperRef.current.slideTo(
+        (session.followUpQuestions ?? []).length - 1,
+        500,
+      );
+      // QuickRepliesSwiperRef.current.slideNext(400)
+      // QuickRepliesSwiperRef.current.setProgress(1, 500)
+      console.log("[Jump to last slide]");
+    }
+  }, [session.followUpQuestions]);
+
+  useEffect(() => {
+    if (QuickRepliesSwiperRef.current) {
+      QuickRepliesSwiperRef.current.setProgress(1, 500);
+    }
+  }, [quickReplies]);
+  // End:[used for AutoFollowUpQuestion]
+
   const config = useAppConfig();
   const fontSize = config.fontSize;
 
@@ -1759,6 +1802,30 @@ function _Chat() {
             </Fragment>
           );
         })}
+        {/* Begin:AutoFollowUpQuestions */}
+
+        <Swiper
+          modules={[FreeMode, Scrollbar, Navigation]}
+          slidesPerView={7}
+          slidesPerGroup={4}
+          spaceBetween={5}
+          direction="horizontal"
+          navigation={true}
+          freeMode={true}
+          scrollbar={{ draggable: true }}
+          onSwiper={(swiper) => {
+            QuickRepliesSwiperRef.current = swiper;
+            console.log("[onSwiper] Change", QuickRepliesSwiperRef.current);
+          }}
+          className="quickRepliesSwiper"
+        >
+          {quickReplies.map((reply, idx) => (
+            <SwiperSlide key={idx} onClick={() => doSubmit(reply)}>
+              <div className={styles["quick-reply-button"]}>{reply}</div>
+            </SwiperSlide>
+          ))}
+        </Swiper>
+        {/* End:AutoFollowUpQuestions */}
       </div>
 
       <div className={styles["chat-input-panel"]}>

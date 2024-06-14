@@ -559,6 +559,52 @@
   border: rgba($color: #888, $alpha: 0.2) 1px solid;
 }
 
+.quick-reply-button {
+  height: 90%;
+  padding: 5px 5px;
+  background-color: #cef9e7;
+  color: #040101;
+  border: 1px solid #00eaff;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  white-space: normal; /* 允许文字换行 */
+  // text-align: left; /* 文字左对齐 */
+  &:hover {
+    background-color: rgb(64, 246, 55);
+  }
+}
+
+.quickRepliesSwiper {
+  height: 40%;
+
+  .swiper-warpper {
+    width: auto;
+  }
+
+  .swiper-button-next {
+    // right: 20px;
+    color: #3d1fff;
+    display: block;
+    border-width: 8px;
+  }
+
+  .swiper-button-prev {
+    // left: -20px;
+    color: #3d1fff;
+    display: block;
+    border-width: 8px;
+  }
+
+  .swiper-slide {
+    width: auto;
+  }
+
+  .swiper-scrollbar {
+    background-color: #f38f8f;
+  }
+}
+
 @media only screen and (max-width: 600px) {
   $calc-image-width: calc(100vw / 3 * 2 / var(--image-count));
 
