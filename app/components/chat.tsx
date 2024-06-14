@@ -813,6 +813,8 @@ function _Chat() {
     "新鲜事",
     "最新科技进展",
     "最近流行的github项目",
+    "随机wiki界面",
+    "什么是gpt-4o",
   ]);
   useEffect(() => {
     setPotentialKeywords(
@@ -821,6 +823,8 @@ function _Chat() {
         "新鲜事",
         "最新科技进展",
         "最近流行的github项目",
+        "随机wiki界面",
+        "什么是gpt-4o",
       ],
     );
     console.log("[current potential keywords]", potentialKeywords);

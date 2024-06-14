@@ -100,6 +100,8 @@ function createEmptySession(): ChatSession {
       "新鲜事",
       "最新科技进展",
       "最近流行的github项目",
+      "随机wiki界面",
+      "什么是gpt-4o",
     ], // used for feature: Generate Potential interesting Keyword
 
     mask: createEmptyMask(),
@@ -853,7 +855,7 @@ export const useChatStore = createPersistStore(
           createMessage({
             role: "system",
             content:
-              '用户可能会对下面这段话中的一些单词、概念、名称、动作、短语感兴趣。请从中选出至多20个最可能的词或短语。返回格式例子: ["word1", "word2","word3","word4","word5"]。仅仅返回一个可被解析的json列表',
+              '用户可能会对下面这段话中的一些单词、短语感兴趣。请从中选出至多16个最可能的词或短语。返回格式例子: ["word1", "word2","word3","word4","word5"]。仅仅返回一个可被解析的json列表',
           }),
         );
 
