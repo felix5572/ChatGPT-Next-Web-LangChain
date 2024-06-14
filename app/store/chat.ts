@@ -810,6 +810,7 @@ export const useChatStore = createPersistStore(
             config: {
               model: getSummarizeModel(session.mask.modelConfig.model),
               stream: false,
+              temperature: 2.0,
             },
             onFinish(message) {
               get().updateCurrentSession((session) => {
