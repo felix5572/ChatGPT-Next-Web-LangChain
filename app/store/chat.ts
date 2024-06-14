@@ -69,6 +69,7 @@ export interface ChatSession {
   clearContextIndex?: number;
 
   followUpQuestions?: string[]; // used for feature: followUpQuestions
+  PotentialKeywords?: string[]; // used for feature: Generate Potential interesting Keyword
 
   mask: Mask;
 }
@@ -94,6 +95,12 @@ function createEmptySession(): ChatSession {
     lastSummarizeIndex: 0,
 
     followUpQuestions: [], // used for feature: followUpQuestions
+    PotentialKeywords: [
+      "最近有趣视频",
+      "新鲜事",
+      "最新科技进展",
+      "最近流行的github项目",
+    ], // used for feature: Generate Potential interesting Keyword
 
     mask: createEmptyMask(),
   };
@@ -180,6 +187,19 @@ function fillTemplateWith(input: string, modelConfig: ModelConfig) {
 const DEFAULT_CHAT_STATE = {
   sessions: [createEmptySession()],
   currentSessionIndex: 0,
+};
+
+const parseStringList = (stringList_string: string): string[] => {
+  console.log("[parseStringList] stringList_string:", stringList_string);
+  let stringList: string[] = [];
+  stringList = (() => {
+    try {
+      return JSON.parse(stringList_string);
+    } catch {
+      return [];
+    }
+  })();
+  return stringList;
 };
 
 export const useChatStore = createPersistStore(
@@ -326,6 +346,7 @@ export const useChatStore = createPersistStore(
         get().updateStat(message);
         get().summarizeSession();
         get().generateFollowUpQuestions();
+        get().generateKeywords(message);
       },
 
       async onUserInput(
@@ -778,22 +799,6 @@ export const useChatStore = createPersistStore(
 
         const GENERATE_QUESTIONS_MIN_LEN = 50;
 
-        function parseQuestions(questions_string: string) {
-          console.log(
-            "[parseQuestions]generateFollowUpQuestions:",
-            questions_string,
-          );
-          let questions = [];
-          questions = (() => {
-            try {
-              return JSON.parse(questions_string);
-            } catch {
-              return [];
-            }
-          })();
-          return questions;
-        }
-
         if (
           // config.enableAutoGenerateQuestions &&
           countMessages(messages) >= GENERATE_QUESTIONS_MIN_LEN
@@ -815,7 +820,7 @@ export const useChatStore = createPersistStore(
             onFinish(message) {
               get().updateCurrentSession((session) => {
                 let parsedFollowUpQuestions: string[];
-                parsedFollowUpQuestions = parseQuestions(message);
+                parsedFollowUpQuestions = parseStringList(message);
                 session.followUpQuestions = (
                   session.followUpQuestions ?? []
                 ).concat(parsedFollowUpQuestions);
@@ -832,6 +837,52 @@ export const useChatStore = createPersistStore(
               // session.
             },
           });
+        }
+      },
+
+      generateKeywords(message: ChatMessage) {
+        const session = get().currentSession();
+        const modelConfig = session.mask.modelConfig;
+
+        var api = getClientApi(modelConfig.model);
+        const messages = session.messages;
+
+        // const GENERATE_QUESTIONS_MIN_LEN = 50;
+
+        const questionMessages = messages.concat(
+          createMessage({
+            role: "system",
+            content:
+              '用户可能会对下面这段话中的一些单词、概念、名称、动作、短语感兴趣。请从中选出至多20个最可能的词或短语。返回格式例子: ["word1", "word2","word3","word4","word5"]。仅仅返回一个可被解析的json列表',
+          }),
+        );
+
+        try {
+          const response = api.llm.chat({
+            messages: questionMessages,
+            config: {
+              model: getSummarizeModel(session.mask.modelConfig.model),
+              stream: false,
+              temperature: 1.0,
+              top_p: 0.9,
+            },
+            onFinish(message) {
+              get().updateCurrentSession((session) => {
+                let PotentialKeywords = parseStringList(message);
+                session.PotentialKeywords = PotentialKeywords ?? [];
+              });
+              console.log(
+                "[Potential Keywords] message",
+                message,
+                "session.followUpQuestions:",
+                session.PotentialKeywords,
+              );
+            },
+          });
+          // 处理响应
+          console.log("API response:", response);
+        } catch (error) {
+          console.error("API call failed:", error);
         }
       },
 

@@ -774,14 +774,16 @@ function _Chat() {
   const chatStore = useChatStore();
   const session = chatStore.currentSession();
 
-  // [used for AutoFollowUpQuestion]
+  // Begin:[used for AutoFollowUpQuestion]
   const [quickReplies, setQuickReplies] = useState<string[]>([]);
   // const [quickReplies, setQuickReplies] = useState<string[]>(["继续", "再详细些", "重新生成"])
   const QuickRepliesSwiperRef = useRef<SwiperCore | null>(null);
 
   useEffect(() => {
     setQuickReplies(
-      ["继续", "再详细些", "重新生成"].concat(session.followUpQuestions ?? []),
+      ["继续", "再详细些", "重新生成", "随便来点什么"].concat(
+        session.followUpQuestions ?? [],
+      ),
     );
     console.log("[current quick replies]", quickReplies);
     if (QuickRepliesSwiperRef.current) {
@@ -805,6 +807,27 @@ function _Chat() {
     }
   }, [quickReplies]);
   // End:[used for AutoFollowUpQuestion]
+
+  const [potentialKeywords, setPotentialKeywords] = useState<string[]>([
+    "最近有趣视频",
+    "新鲜事",
+    "最新科技进展",
+    "最近流行的github项目",
+  ]);
+  useEffect(() => {
+    setPotentialKeywords(
+      session.PotentialKeywords || [
+        "最近有趣视频",
+        "新鲜事",
+        "最新科技进展",
+        "最近流行的github项目",
+      ],
+    );
+    console.log("[current potential keywords]", potentialKeywords);
+  }, [session.PotentialKeywords]);
+  console.log("[potentialKeywords]", potentialKeywords);
+
+  // potentialKeywords = ["最近有趣视频", "新鲜事", "最新科技进展", "最近流行的github项目"]
 
   const config = useAppConfig();
   const fontSize = config.fontSize;
@@ -1028,13 +1051,14 @@ function _Chat() {
   };
   const onRightClick = (e: any, message: ChatMessage) => {
     // copy to clipboard
-    if (selectOrCopy(e.currentTarget, getMessageTextContent(message))) {
-      if (userInput.length === 0) {
-        setUserInput(getMessageTextContent(message));
-      }
-
-      e.preventDefault();
-    }
+    // if (selectOrCopy(e.currentTarget, getMessageTextContent(message))) {
+    //   if (userInput.length === 0) {
+    //     setUserInput(getMessageTextContent(message));
+    //   }
+    //   e.preventDefault();
+    // }
+    e.preventDefault();
+    chatStore.generateKeywords(message);
   };
 
   const deleteMessage = (msgId?: string) => {
@@ -1806,7 +1830,7 @@ function _Chat() {
 
         <Swiper
           modules={[FreeMode, Scrollbar, Navigation]}
-          slidesPerView={7}
+          slidesPerView={6}
           slidesPerGroup={4}
           spaceBetween={5}
           direction="horizontal"
@@ -1826,6 +1850,27 @@ function _Chat() {
           ))}
         </Swiper>
         {/* End:AutoFollowUpQuestions */}
+
+        {/* Begin:Feature:PotentialKeywords */}
+        <Swiper
+          modules={[FreeMode, Scrollbar]}
+          slidesPerView={6}
+          slidesPerGroup={4}
+          spaceBetween={5}
+          direction="horizontal"
+          freeMode={true}
+          scrollbar={{ draggable: true }}
+          className="PotentialKeywordsSwiper"
+        >
+          {potentialKeywords.map((keyword, idx) => (
+            <SwiperSlide key={idx} onClick={() => doSubmit("讲讲:" + keyword)}>
+              <div className={styles["potential-keyword-button"]}>
+                {keyword}
+              </div>
+            </SwiperSlide>
+          ))}
+        </Swiper>
+        {/* End:Feature:PotentialKeywords */}
       </div>
 
       <div className={styles["chat-input-panel"]}>

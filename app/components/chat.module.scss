@@ -605,6 +605,29 @@
   }
 }
 
+.potential-keyword-button {
+  padding: 10px 10px;
+  background-color: #f9dada;
+  color: #040101;
+  border: 1px solid #e8ff9c;
+  border-radius: 15px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  white-space: normal;
+  &:hover {
+    background-color: rgb(252, 133, 133);
+  }
+}
+
+.quickRepliesSwiper {
+  height: 30%;
+  .swiper-slide {
+    width: auto;
+  }
+}
+
+
+
 @media only screen and (max-width: 600px) {
   $calc-image-width: calc(100vw / 3 * 2 / var(--image-count));
 
