@@ -434,7 +434,7 @@ const cn = {
     Prompt: {
       History: (content: string) => "这是历史聊天总结作为前情提要：" + content,
       Topic:
-        "使用3到10个词直接返回这句话的简要主题，不要解释、不要标点、不要语气词、不要多余文本，不要加粗，如果没有主题，请直接返回“闲聊”",
+        "使用3到15个词直接返回这句话的简要主题，不要解释、不要标点、不要语气词、不要多余文本，不要加粗，如果没有主题，请直接返回“闲聊”",
       Summarize:
         "简要总结一下对话内容，用作后续的上下文提示 prompt，控制在 200 字以内",
     },
@@ -554,6 +554,27 @@ const cn = {
     Messages: "消息",
     Topic: "主题",
     Time: "时间",
+  },
+  ChatAddon: {
+    DefaultFollowUpQuestions: [
+      "继续",
+      "再详细些",
+      "重新生成",
+      "随便来点什么",
+      "请帮我搜索以下内容:",
+    ],
+    DefaultPotentialKeywords: [
+      "最近有趣视频",
+      "新鲜事",
+      "最新科技进展",
+      "最近流行的github项目",
+    ],
+    FollowUpQuestions:
+      '请根据以上对话生成5个用户可能感兴趣的后续问题。返回格式例子: ["question1", "question2","question3","question4","question5"]。仅仅返回一个可被解析的json列表。',
+    GenerateKeywords:
+      "请从以上文本中选择最多16个用户可能会进一步搜索的词或短语。" +
+      "这些词或短语可以是专有名词、陌生概念或新鲜概念。" +
+      '返回格式示例: ["word1", "word2", "word3", "word4", "word5"]。只需返回一个可解析的JSON列表。',
   },
 };
 

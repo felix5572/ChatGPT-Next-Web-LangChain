@@ -563,6 +563,29 @@ const en: LocaleType = {
     Code: "Detected access code from url, confirm to apply?",
     Settings: "Detected settings from url, confirm to apply?",
   },
+  ChatAddon: {
+    DefaultFollowUpQuestions: [
+      "Continue",
+      "More details",
+      "Regenerate",
+      "Anything random",
+      "Please help me search for the following:",
+    ],
+    DefaultPotentialKeywords: [
+      "recent interesting videos",
+      "news",
+      "latest tech advancements",
+      "trending GitHub projects",
+    ],
+    FollowUpQuestions:
+      "Please generate 5 follow-up questions based on the above conversation that users might be interested in. " +
+      'Return format example: ["question1", "question2", "question3", "question4", "question5"]. ' +
+      "Only return a JSON list that can be parsed.",
+    GenerateKeywords:
+      "Please select up to 16 words or phrases from the above text that users might further search for. " +
+      "These words or phrases can be proper nouns, unfamiliar concepts, or new concepts. " +
+      'Return format example: ["word1", "word2", "word3", "word4", "word5"]. Only return a JSON list that can be parsed.',
+  },
 };
 
 export default en;

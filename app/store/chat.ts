@@ -808,8 +808,7 @@ export const useChatStore = createPersistStore(
           const questionMessages = messages.concat(
             createMessage({
               role: "system",
-              content:
-                '请根据以上对话生成5个用户可能感兴趣的后续问题。返回格式例子: ["question1", "question2","question3","question4","question5"]。仅仅返回一个可被解析的json列表。',
+              content: Locale.ChatAddon.FollowUpQuestions,
             }),
           );
           api.llm.chat({
@@ -854,8 +853,7 @@ export const useChatStore = createPersistStore(
         const questionMessages = messages.concat(
           createMessage({
             role: "system",
-            content:
-              '用户可能会对下面这段话中的一些单词、短语感兴趣。请从中选出至多16个最可能的词或短语。返回格式例子: ["word1", "word2","word3","word4","word5"]。仅仅返回一个可被解析的json列表',
+            content: Locale.ChatAddon.GenerateKeywords,
           }),
         );
 

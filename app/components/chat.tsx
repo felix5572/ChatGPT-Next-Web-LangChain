@@ -781,7 +781,8 @@ function _Chat() {
 
   useEffect(() => {
     setQuickReplies(
-      ["继续", "再详细些", "重新生成", "随便来点什么"].concat(
+      // ["继续", "再详细些", "重新生成", "随便来点什么"].concat(
+      (Locale.ChatAddon.DefaultFollowUpQuestions ?? []).concat(
         session.followUpQuestions ?? [],
       ),
     );
@@ -808,24 +809,12 @@ function _Chat() {
   }, [quickReplies]);
   // End:[used for AutoFollowUpQuestion]
 
-  const [potentialKeywords, setPotentialKeywords] = useState<string[]>([
-    "最近有趣视频",
-    "新鲜事",
-    "最新科技进展",
-    "最近流行的github项目",
-    "随机wiki界面",
-    "什么是gpt-4o",
-  ]);
+  const [potentialKeywords, setPotentialKeywords] = useState<string[]>(
+    Locale.ChatAddon.DefaultPotentialKeywords || [],
+  );
   useEffect(() => {
     setPotentialKeywords(
-      session.PotentialKeywords || [
-        "最近有趣视频",
-        "新鲜事",
-        "最新科技进展",
-        "最近流行的github项目",
-        "随机wiki界面",
-        "什么是gpt-4o",
-      ],
+      session.PotentialKeywords || Locale.ChatAddon.DefaultPotentialKeywords,
     );
     console.log("[current potential keywords]", potentialKeywords);
   }, [session.PotentialKeywords]);
