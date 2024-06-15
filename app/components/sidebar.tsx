@@ -177,7 +177,7 @@ export function SideBar(props: { className?: string }) {
           AiChatFlow
         </div>
         <div className={styles["sidebar-sub-title"]}>
-          Build your own AI assistant.
+          Experience interactive conversations with AI.
         </div>
         <div className={styles["sidebar-logo"] + " no-dark"}>
           <ChatGptIcon />
