@@ -582,7 +582,7 @@ const en: LocaleType = {
       'Return format example: ["question1", "question2", "question3", "question4", "question5"]. ' +
       "Only return a JSON list that can be parsed.",
     GenerateKeywords:
-      "Please select up to 16 words or phrases from the above text that users might further search for. " +
+      "Please select up to 12 words or phrases from the above text that users might further search for. " +
       "These words or phrases can be proper nouns, unfamiliar concepts, or new concepts. " +
       'Return format example: ["word1", "word2", "word3", "word4", "word5"]. Only return a JSON list that can be parsed.',
   },

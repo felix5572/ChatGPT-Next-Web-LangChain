@@ -1559,7 +1559,8 @@ function _Chat() {
         </div>
 
         <PromptToast
-          showToast={!hitBottom}
+          // showToast={!hitBottom}
+          showToast={hitBottom}
           showModal={showPromptModal}
           setShowModal={setShowPromptModal}
         />
@@ -1827,7 +1828,7 @@ function _Chat() {
           slidesPerGroup={4}
           spaceBetween={5}
           direction="horizontal"
-          navigation={true}
+          navigation={false}
           freeMode={true}
           scrollbar={{ draggable: true }}
           onSwiper={(swiper) => {

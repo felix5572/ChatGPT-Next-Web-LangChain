@@ -572,7 +572,7 @@ const cn = {
     FollowUpQuestions:
       '请根据以上对话生成5个用户可能感兴趣的后续问题。返回格式例子: ["question1", "question2","question3","question4","question5"]。仅仅返回一个可被解析的json列表。',
     GenerateKeywords:
-      "请从以上文本中选择最多16个用户可能会进一步搜索的词或短语。" +
+      "请从以上文本中选择最多12个用户可能会进一步搜索的词或短语。" +
       "这些词或短语可以是专有名词、陌生概念或新鲜概念。" +
       '返回格式示例: ["word1", "word2", "word3", "word4", "word5"]。只需返回一个可解析的JSON列表。',
   },
