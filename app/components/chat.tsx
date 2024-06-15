@@ -818,7 +818,7 @@ function _Chat() {
     );
     console.log("[current potential keywords]", potentialKeywords);
   }, [session.PotentialKeywords]);
-  console.log("[potentialKeywords]", potentialKeywords);
+  // console.log("[potentialKeywords]", potentialKeywords);
 
   // potentialKeywords = ["最近有趣视频", "新鲜事", "最新科技进展", "最近流行的github项目"]
 
