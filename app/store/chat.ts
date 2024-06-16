@@ -14,7 +14,13 @@ import {
   SUMMARIZE_MODEL,
   GEMINI_SUMMARIZE_MODEL,
 } from "../constant";
-import { ClientApi, RequestMessage, MultimodalContent } from "../client/api";
+import {
+  ClientApi,
+  RequestMessage,
+  MultimodalContent,
+  TokensUsage,
+  TokensUsageInfo,
+} from "../client/api";
 import { ChatControllerPool } from "../client/controller";
 import { prettyObject } from "../utils/format";
 import { estimateTokenLength } from "../utils/token";
@@ -38,6 +44,7 @@ export type ChatMessage = RequestMessage & {
   isError?: boolean;
   id: string;
   model?: ModelType;
+  tokensUsageInfo?: TokensUsageInfo;
 };
 
 export function createMessage(override: Partial<ChatMessage>): ChatMessage {
@@ -345,6 +352,7 @@ export const useChatStore = createPersistStore(
           session.messages = session.messages.concat();
           session.lastUpdate = Date.now();
         });
+        console.log("[onNewMessage]", message, message.tokensUsageInfo);
         get().updateStat(message);
         get().summarizeSession();
         get().generateFollowUpQuestions();
@@ -392,6 +400,7 @@ export const useChatStore = createPersistStore(
           streaming: true,
           model: modelConfig.model,
           toolMessages: [],
+          tokensUsageInfo: {},
         });
 
         // get recent messages
@@ -458,10 +467,18 @@ export const useChatStore = createPersistStore(
                   session.messages = session.messages.concat();
                 });
               },
-              onFinish(message) {
+              // finished  toolAgentChat
+              onFinish(message, onFinishParams) {
+                console.log(
+                  "[onFinish agentCall toolAgentChat botMessage start] onFinishParams, message",
+                  onFinishParams,
+                  message,
+                );
                 botMessage.streaming = false;
                 if (message) {
                   botMessage.content = message;
+                  const tokensUsage = onFinishParams?.tokensUsage;
+                  (botMessage.tokensUsageInfo ??= {}).tokensusage = tokensUsage;
                   get().onNewMessage(botMessage);
                 }
                 ChatControllerPool.remove(session.id, botMessage.id);
@@ -524,10 +541,18 @@ export const useChatStore = createPersistStore(
                 session.messages = session.messages.concat();
               });
             },
-            onFinish(message) {
+            // finished botMessage no toolagent
+            onFinish(message, onFinishParams) {
+              console.log(
+                "[onFinish purechat botMessage begin] onFinishParams, message",
+                onFinishParams,
+                message,
+              );
               botMessage.streaming = false;
               if (message) {
                 botMessage.content = message;
+                const tokensUsage = onFinishParams?.tokensUsage;
+                (botMessage.tokensUsageInfo ??= {}).tokensusage = tokensUsage;
                 get().onNewMessage(botMessage);
               }
               ChatControllerPool.remove(session.id, botMessage.id);
@@ -712,6 +737,7 @@ export const useChatStore = createPersistStore(
               model: getSummarizeModel(session.mask.modelConfig.model),
               stream: false,
             },
+            // finished summarize topic
             onFinish(message) {
               get().updateCurrentSession(
                 (session) =>
@@ -777,8 +803,9 @@ export const useChatStore = createPersistStore(
             onUpdate(message) {
               session.memoryPrompt = message;
             },
+            // finish memory prompts
             onFinish(message) {
-              // console.log("[Memory] ", message);
+              console.log("[memory prompt] ", message);
               get().updateCurrentSession((session) => {
                 session.lastSummarizeIndex = lastSummarizeIndex;
                 session.memoryPrompt = message; // Update the memory prompt for stored it in local storage
@@ -818,6 +845,7 @@ export const useChatStore = createPersistStore(
               stream: false,
               temperature: 2.0,
             },
+            // finish generate follow up questions
             onFinish(message) {
               get().updateCurrentSession((session) => {
                 let parsedFollowUpQuestions: string[];
@@ -866,6 +894,7 @@ export const useChatStore = createPersistStore(
               temperature: 1.0,
               top_p: 0.9,
             },
+            // finish auto generate potential keywords
             onFinish(message) {
               get().updateCurrentSession((session) => {
                 let PotentialKeywords = parseStringList(message);

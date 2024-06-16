@@ -131,6 +131,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css/bundle";
 import { FreeMode, Navigation, Scrollbar } from "swiper/modules";
 import SwiperCore from "swiper";
+import { estimateTokenLength } from "../utils/token";
 
 const ttsPlayer = createTTSPlayer();
 
@@ -1812,7 +1813,10 @@ function _Chat() {
                   <div className={styles["chat-message-action-date"]}>
                     {isContext
                       ? Locale.Chat.IsContext
-                      : message.date.toLocaleString()}
+                      : message.date.toLocaleString() +
+                        " Length: about " +
+                        estimateTokenLength(getMessageTextContent(message)) +
+                        " tokens"}
                   </div>
                 </div>
               </div>

@@ -10,6 +10,7 @@ import { ChatGPTApi } from "./platforms/openai";
 import { FileApi, FileInfo } from "./platforms/utils";
 import { GeminiProApi } from "./platforms/google";
 import { ClaudeApi } from "./platforms/anthropic";
+import { estimateTokenLength } from "../utils/token";
 export const ROLES = ["system", "user", "assistant"] as const;
 export type MessageRole = (typeof ROLES)[number];
 
@@ -65,12 +66,15 @@ export interface TranscriptionOptions {
   onController?: (controller: AbortController) => void;
 }
 
+interface OnFinishParams {
+  tokensUsage?: TokensUsage;
+}
 export interface ChatOptions {
   messages: RequestMessage[];
   config: LLMConfig;
   onToolUpdate?: (toolName: string, toolInput: string) => void;
   onUpdate?: (message: string, chunk: string) => void;
-  onFinish: (message: string) => void;
+  onFinish: (message: string, onFinishParams?: OnFinishParams) => void;
   onError?: (err: Error) => void;
   onController?: (controller: AbortController) => void;
 }
@@ -82,7 +86,7 @@ export interface AgentChatOptions {
   agentConfig: LLMAgentConfig;
   onToolUpdate?: (toolName: string, toolInput: string) => void;
   onUpdate?: (message: string, chunk: string) => void;
-  onFinish: (message: string) => void;
+  onFinish: (message: string, onFinishParams?: OnFinishParams) => void;
   onError?: (err: Error) => void;
   onController?: (controller: AbortController) => void;
 }
@@ -97,6 +101,18 @@ export interface CreateRAGStoreOptions {
 export interface LLMUsage {
   used: number;
   total: number;
+}
+
+export interface TokensUsageInfo {
+  tokensusage?: TokensUsage;
+  estimatTotalTokens?: number | null; // Estimated by this App
+}
+
+export interface TokensUsage {
+  // Used for single message comsume this amount tokens. OpenAI interface.
+  prompt_tokens?: number | null;
+  completion_tokens?: number | null;
+  total_tokens?: number | null; // null represents not update for now.
 }
 
 export interface LLMModel {
@@ -117,7 +133,7 @@ export abstract class LLMApi {
   abstract transcription(options: TranscriptionOptions): Promise<string>;
   abstract toolAgentChat(options: AgentChatOptions): Promise<void>;
   abstract createRAGStore(options: CreateRAGStoreOptions): Promise<void>;
-  abstract usage(): Promise<LLMUsage>;
+  abstract usage(): Promise<LLMUsage>; // return the total amount of the user (not for this single reply message)
   abstract models(): Promise<LLMModel[]>;
 }
 

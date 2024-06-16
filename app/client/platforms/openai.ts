@@ -17,6 +17,7 @@ import {
   LLMApi,
   LLMModel,
   LLMUsage,
+  TokensUsage,
   MultimodalContent,
   SpeechOptions,
   TranscriptionOptions,
@@ -103,6 +104,12 @@ export class ChatGPTApi implements LLMApi {
 
   extractMessage(res: any) {
     return res.choices?.at(0)?.message?.content ?? "";
+  }
+
+  extractMessageTokensUsage(res: any): TokensUsage {
+    const tokensUsage = res?.usage || {};
+    console.log("[extractMessageTokensUsage]", tokensUsage);
+    return tokensUsage;
   }
 
   async speech(options: SpeechOptions): Promise<ArrayBuffer> {
@@ -269,6 +276,7 @@ export class ChatGPTApi implements LLMApi {
 
         const finish = () => {
           if (!finished) {
+            console.log("[finished:pureChat] responseText", responseText);
             finished = true;
             options.onFinish(responseText + remainText);
           }
@@ -365,7 +373,14 @@ export class ChatGPTApi implements LLMApi {
 
         const resJson = await res.json();
         const message = this.extractMessage(resJson);
-        options.onFinish(message);
+        const tokensUsage = this.extractMessageTokensUsage(resJson);
+        console.log(
+          "[onmessage:noToolAgentChat]:tokensUsage, message, resJson",
+          tokensUsage,
+          message,
+          resJson,
+        );
+        options.onFinish(message, { tokensUsage: tokensUsage });
       }
     } catch (e) {
       console.log("[Request] failed to make a chat request", e);
@@ -551,7 +566,14 @@ export class ChatGPTApi implements LLMApi {
 
         const resJson = await res.json();
         const message = this.extractMessage(resJson);
-        options.onFinish(message);
+        const tokensUsage = this.extractMessageTokensUsage(resJson);
+        console.log(
+          "[onmessage:toolAgentChat]:tokensUsage, message, resJson",
+          tokensUsage,
+          message,
+          resJson,
+        );
+        options.onFinish(message, { tokensUsage: tokensUsage });
       }
     } catch (e) {
       console.log("[Request] failed to make a chat reqeust", e);
