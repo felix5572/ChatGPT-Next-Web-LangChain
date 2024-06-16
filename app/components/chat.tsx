@@ -805,9 +805,20 @@ function _Chat() {
 
   useEffect(() => {
     if (QuickRepliesSwiperRef.current) {
-      QuickRepliesSwiperRef.current.setProgress(1, 500);
+      QuickRepliesSwiperRef.current.setProgress(0.99, 500);
     }
   }, [quickReplies]);
+
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const handleClick = async () => {
+    setIsRefreshing(true); // 设置按钮为刷新状态
+    await new Promise<void>((resolve) => {
+      chatStore.generateFollowUpQuestions();
+      resolve();
+    });
+    // await chatStore.generateFollowUpQuestions(); // 调用函数
+    setIsRefreshing(false);
+  };
   // End:[used for AutoFollowUpQuestion]
 
   const [potentialKeywords, setPotentialKeywords] = useState<string[]>(
@@ -1839,6 +1850,7 @@ function _Chat() {
             QuickRepliesSwiperRef.current = swiper;
             console.log("[onSwiper] Change", QuickRepliesSwiperRef.current);
           }}
+          // onReachEnd={() => {chatStore.generateFollowUpQuestions()}}
           className="quickRepliesSwiper"
         >
           {quickReplies.map((reply, idx) => (
@@ -1846,6 +1858,14 @@ function _Chat() {
               <div className={styles["quick-reply-button"]}>{reply}</div>
             </SwiperSlide>
           ))}
+          <SwiperSlide
+            key={"generateMoreQuestions"}
+            onClick={isRefreshing ? () => {} : handleClick}
+          >
+            <div className={styles["quick-reply-button"]}>
+              {"More \nQuestions"}
+            </div>
+          </SwiperSlide>
         </Swiper>
         {/* End:AutoFollowUpQuestions */}
 
